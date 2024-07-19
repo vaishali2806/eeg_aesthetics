@@ -3,7 +3,6 @@
 clc
 close all
 clear all
- addpath(genpath('/Users/ayaygoya/Documents/VaishInternship/fieldtrip/'));
  addpath(genpath('/Users/ayaygoya/Documents/VaishInternship/CoSMoMVPA/'));
 
 logfile = load('/Users/ayaygoya/Documents/VaishInternship/Data/log/RSVP_eeg_s1.mat');
