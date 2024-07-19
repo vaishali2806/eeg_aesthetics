@@ -1,9 +1,9 @@
-
 %%
 
 clc
 close all
 clear all
+ addpath(genpath('/Users/ayaygoya/Documents/VaishInternship/fieldtrip/'));
  addpath(genpath('/Users/ayaygoya/Documents/VaishInternship/CoSMoMVPA/'));
 
 logfile = load('/Users/ayaygoya/Documents/VaishInternship/Data/log/RSVP_eeg_s1.mat');
@@ -39,7 +39,7 @@ end
 %%
 ft_defaults()
 
-fileName = ('/Users/ayaygoya/Documents/VaishInternship/Data/eeg/eeg_aesthetics_0001.eeg')
+fileName = ('/Users/ayaygoya/Documents/VaishInternship/Data/eeg/eeg_aesthetics_0001.eeg');
 %Define Events
 cfg=[]; 
 cfg.dataset=fileName;
@@ -70,15 +70,31 @@ cfg=[];
 cfg.showlabel='yes';
 cfg.method='summary'; 
 cfg.keepchannel='no';
+cfg.ylim     = [-1e-12 1e-12];
 data_clean=ft_rejectvisual(cfg,data);
-
+%%
+% Selecting only 100 trials
+cfg= [];
+cfg.trials = 1:100;
+data_selected = ft_selectdata(cfg,data_clean);
+%%
+% Run ICA
+cfg = [];
+cfg.method = 'runica';
+comp = ft_componentanalysis(cfg, data_selected);
+%%
+% Remove blink components
+cfg = [];
+cfg.component = [1 2]; % components to be removed
+data_clean = ft_rejectcomponent(cfg, comp, data_selected);
+%%
 cfg= [];
 cfg.trials = find(data_clean.trialinfo(:,1) ==1);
 data_subset = ft_selectdata(cfg,data_clean);
 
-cfg=[]
-cfg.keeptrials = 'yes'
-data_subset = ft_timelockanalysis(cfg,data_subset)
+cfg=[];
+cfg.keeptrials = 'yes';
+data_subset = ft_timelockanalysis(cfg,data_subset);
 %%
 % data_classify = data_subset.trial;
 % 
@@ -362,4 +378,4 @@ xlabel('Time')
 ylabel('Correlation')
 legend('Liking','Valence','Arousal', 'Complexity','Familarity', 'Style','Category')
 xlim([-0.05 1.0])
-title('Second Participant')
+title('Second Participant')
