@@ -69,18 +69,27 @@ cfg=[];
 cfg.showlabel='yes';
 cfg.method='summary'; 
 cfg.keepchannel='no';
-cfg.ylim     = [-1e-12 1e-12];
 data_clean=ft_rejectvisual(cfg,data);
 %%
-% Selecting only 100 trials
-cfg= [];
-cfg.trials = 1:100;
-data_selected = ft_selectdata(cfg,data_clean);
+% downsampling data to 100Hz
+cfg = []
+cfg.resamplefs = 100; 
+data_selected = ft_resampledata(cfg,data_subset_bs)
 %%
 % Run ICA
 cfg = [];
 cfg.method = 'runica';
 comp = ft_componentanalysis(cfg, data_selected);
+%%
+% Inspect ICA components
+cfg = [];
+cfg.component = 1:20; 
+cfg.layout = 'easycapM1.mat'; 
+ft_topoplotIC(cfg, comp);
+
+cfg = [];
+cfg.viewmode = 'component';
+ft_databrowser(cfg, comp);
 %%
 % Remove blink components
 cfg = [];
