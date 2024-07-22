@@ -74,7 +74,7 @@ data_clean=ft_rejectvisual(cfg,data);
 % downsampling data to 100Hz
 cfg = []
 cfg.resamplefs = 100; 
-data_selected = ft_resampledata(cfg,data_subset_bs)
+data_selected = ft_resampledata(cfg,data_clean)
 %%
 % Run ICA
 cfg = [];
