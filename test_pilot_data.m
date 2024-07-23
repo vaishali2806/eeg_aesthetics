@@ -160,13 +160,12 @@ corr_behav_eeg = zeros(numColsPredBehav, numTimeBins);
 
 for ii =1: numTimeBins
 
-    eeg_pred = squareform(squeeze(ds_corr(:,:,ii))); 
-    eeg_pred_reshaped = eeg_pred(1:numRowsPredBehav)';
+    eeg_pred = squareform(squeeze(ds_corr(:,:,ii)))'; 
     
     temp_corr = zeros(numColsPredBehav, 1);
 
     for kk = 1:numColsPredBehav
-        temp_corr(kk) = atanh(cosmo_corr(pred_behav(:, kk), eeg_pred_reshaped, 'Spearman'));
+        temp_corr(kk) = atanh(cosmo_corr(pred_behav(:, kk), eeg_pred(1:numRowsPredBehav, :), 'Spearman'));
     end
 
     corr_behav_eeg(:, ii) = temp_corr;
