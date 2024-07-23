@@ -57,17 +57,18 @@ cfg.refchannel='FCz';
 data=ft_preprocessing(cfg);
 %%
 data.trialinfo  = [data.trialinfo trials_data];
+clearvars extracted_number ii image_presented number pattern trials_data logfile
 %%
 % downsampling data to 100Hz
 cfg = [];
 cfg.resamplefs = 100; 
-data_selected = ft_resampledata(cfg,data.data);
+data_selected = ft_resampledata(cfg,data);
 %%
 cfg=[];
 cfg.showlabel='yes';
 cfg.method='summary'; 
 cfg.keepchannel='no';
-data_clean=ft_rejectvisual(cfg,data.data);
+data_clean=ft_rejectvisual(cfg,data_selected);
 clearvars data_selected
 %%
 % % Run ICA
