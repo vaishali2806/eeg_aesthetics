@@ -123,7 +123,7 @@ data_subset = ft_selectdata(cfg,data_clean);
 cfg=[];
 cfg.keeptrials = 'yes';
 data_subset = ft_timelockanalysis(cfg,data_subset);
-clearvars data_clean
+%clearvars data_clean
 %% 
 % baseline correction 
 cfg=[];
@@ -175,7 +175,7 @@ end
 pred_behav(:,n_cond) = squareform(diff_pred);
 
 end 
-clearvars ii jj cond_colms n_cond pred_val_1 pred_val_2 diff_pred
+%clearvars ii jj cond_colms n_cond pred_val_1 pred_val_2 diff_pred
 %% 
 numRowsPredBehav = size(pred_behav, 1);
 numColsPredBehav = size(pred_behav, 2);
