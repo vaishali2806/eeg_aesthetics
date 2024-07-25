@@ -57,39 +57,64 @@ cfg.refchannel='FCz';
 data=ft_preprocessing(cfg);
 %%
 data.trialinfo  = [data.trialinfo trials_data];
-clearvars extracted_number ii image_presented number pattern trials_data logfile
+%clearvars extracted_number ii image_presented number pattern trials_data logfile
 %%
 % downsampling data to 100Hz
 cfg = [];
 cfg.resamplefs = 100; 
 data_selected = ft_resampledata(cfg,data);
 %%
+zero_var_channels = [];
+for i = 1:length(data_selected.label)
+    channel_variances = zeros(1, length(data_selected.trial));
+    for j = 1:length(data_selected.trial)
+        channel_data = data_selected.trial{j}(i, :);
+        channel_variances(j) = var(channel_data);
+    end
+    if all(channel_variances == 0)
+        zero_var_channels = [zero_var_channels; data_selected.label(i)];
+    end
+end
+
+% Display the channels with zero variance (flat signals)
+disp('Channels with zero frequency (zero variance):');
+disp(zero_var_channels);
+%%
+% Remove channels with zero variance from the data
+cfg = [];
+cfg.channel = setdiff(data_selected.label, zero_var_channels); 
+clean_data = ft_selectdata(cfg, data_selected);
+%%
 cfg=[];
 cfg.showlabel='yes';
 cfg.method='summary'; 
 cfg.keepchannel='no';
-data_clean=ft_rejectvisual(cfg,data_selected);
-clearvars data_selected
+data_clean=ft_rejectvisual(cfg,clean_data);
+%clearvars data_selected
 %%
-% % Run ICA
-% cfg = [];
-% cfg.method = 'runica';
-% comp = ft_componentanalysis(cfg, data_selected);
-% %%
-% % Inspect ICA components
-% cfg = [];
-% cfg.component = 1:20; 
-% cfg.layout = 'easycapM1.mat'; 
-% ft_topoplotIC(cfg, comp);
-% 
-% cfg = [];
-% cfg.viewmode = 'component';
-% ft_databrowser(cfg, comp);
+% Run FastICA
+cfg = [];
+cfg.method = 'runica';
+cfg.numcomponent = 30;
+comp = ft_componentanalysis(cfg, data_clean);
+%%
+% Inspect ICA components
+cfg = [];
+cfg.component = 1:30; 
+cfg.layout = 'easycap-M1.txt'; 
+cfg.marker = 'off';
+ft_topoplotIC(cfg, comp);
+%%
+cfg = [];
+cfg.viewmode = 'component';
+cfg.channel = [2];
+cfg.layout    = 'easycap-M1.txt';
+ft_databrowser(cfg, comp);
 % %%
 % % Remove blink components
 % cfg = [];
-% cfg.component = [1 2]; % components to be removed
-% data_clean = ft_rejectcomponent(cfg, comp, data_selected);
+% cfg.component = [1 2];
+% data_clean = ft_rejectcomponent(cfg, comp, data_clean);
 %%
 cfg= [];
 cfg.trials = find(data_clean.trialinfo(:,1) ==1);
@@ -122,7 +147,7 @@ for n_bin = 1:size(data_subset_bs.trial,3)
         disp(['time bin ' num2str(n_bin) ' processed'])
     end 
 end 
-clearvars ds_pca ds_t n_bin ds
+%clearvars ds_pca ds_t n_bin ds
 
 %% 
 
@@ -165,7 +190,7 @@ for ii =1: numTimeBins
     temp_corr = zeros(numColsPredBehav, 1);
 
     for kk = 1:numColsPredBehav
-        temp_corr(kk) = atanh(cosmo_corr(pred_behav(:, kk), eeg_pred(1:numRowsPredBehav, :), 'Spearman'));
+        temp_corr(kk) = atanh(cosmo_corr(pred_behav(:, kk), eeg_pred, 'Spearman'));
     end
 
     corr_behav_eeg(:, ii) = temp_corr;
@@ -249,14 +274,12 @@ cat_predictor = squareform(cat_pred)';
 for kk = 1:2
     for ii =1: size(ds_corr,3)
     
-    eeg_pred = squareform(squeeze(ds_corr(:,:,ii))); 
+    eeg_pred = squareform(squeeze(ds_corr(:,:,ii)))'; 
 
     if kk == 1
-        eeg_pred_reshaped = eeg_pred(1:size(style_predictor, 1))';
-        corr_eeg(1,ii)= atanh(cosmo_corr(style_predictor,eeg_pred_reshaped,'Spearman')); 
+        corr_eeg(1,ii)= atanh(cosmo_corr(style_predictor,eeg_pred,'Spearman')); 
     else 
-        eeg_pred_reshaped = eeg_pred(1:size(cat_predictor, 1))';
-        corr_eeg(2,ii)= atanh(cosmo_corr(cat_predictor,eeg_pred_reshaped,'Spearman')); 
+        corr_eeg(2,ii)= atanh(cosmo_corr(cat_predictor,eeg_pred,'Spearman')); 
 
     end 
         if (rem(ii,50) ==0)
