@@ -107,14 +107,14 @@ ft_topoplotIC(cfg, comp);
 %%
 cfg = [];
 cfg.viewmode = 'component';
-cfg.channel = [2];
+cfg.channel = [6 26 28 30];
 cfg.layout    = 'easycap-M1.txt';
 ft_databrowser(cfg, comp);
 % %%
-% % Remove blink components
-% cfg = [];
-% cfg.component = [1 2];
-% data_clean = ft_rejectcomponent(cfg, comp, data_clean);
+% Remove blink components
+ cfg = [];
+ cfg.component = [6];
+ data_clean = ft_rejectcomponent(cfg, comp, data_clean);
 %%
 cfg= [];
 cfg.trials = find(data_clean.trialinfo(:,1) ==1);
@@ -146,36 +146,21 @@ for n_bin = 1:size(data_subset_bs.trial,3)
     if (rem(n_bin,50) ==0)
         disp(['time bin ' num2str(n_bin) ' processed'])
     end 
-end 
-%clearvars ds_pca ds_t n_bin ds
+end
 
 %% 
-
 cond_colms = [8, 10, 12, 14,16];
 for n_cond = 1:5
 for ii = 1:999 
-    
-    %  for liking 8 for valence 10 %  arousal 12, complexity, 14, Familarity
-    % 16
-    
-    
+    %  for liking 8 for valence 10 %  arousal 12, complexity, 14, Familarity 16
     pred_val_1 = data_VAPS.data(ii,cond_colms(n_cond));
-    
     for jj = 1:999
-        
         pred_val_2 = data_VAPS.data(jj,cond_colms(n_cond));
-        
         diff_pred(ii,jj) = abs(pred_val_1 - pred_val_2);
-        
     end 
-    
-    
 end
-
-pred_behav(:,n_cond) = squareform(diff_pred);
-
+pred_behav(:,n_cond) = squareform(diff_pred)';
 end 
-%clearvars ii jj cond_colms n_cond pred_val_1 pred_val_2 diff_pred
 %% 
 numRowsPredBehav = size(pred_behav, 1);
 numColsPredBehav = size(pred_behav, 2);
@@ -184,22 +169,16 @@ numTimeBins = size(ds_corr, 3);
 corr_behav_eeg = zeros(numColsPredBehav, numTimeBins);
 
 for ii =1: numTimeBins
-
-    eeg_pred = squareform(squeeze(ds_corr(:,:,ii)))'; 
-    
+    eeg_pred = squareform(squeeze(ds_corr(:,:,ii)))';
     temp_corr = zeros(numColsPredBehav, 1);
-
     for kk = 1:numColsPredBehav
         temp_corr(kk) = atanh(cosmo_corr(pred_behav(:, kk), eeg_pred, 'Spearman'));
     end
-
-    corr_behav_eeg(:, ii) = temp_corr;
-    
+    corr_behav_eeg(:, ii) = temp_corr;    
         if (rem(ii,10) ==0)
             disp(['time bin ' num2str(ii) ' processed'])
         end 
-
-end 
+end  
 %% 
 plot(data_subset_bs.time, corr_behav_eeg(1,:))
 hold on 
@@ -225,73 +204,48 @@ cfg.layout = 'easycapM1.lay';
 ft_multiplotER(cfg,data_subset)
 
 %% 
-
 style_pred = [];
 for ii = 1:999 
-    
     st_1 =  data_VAPS.data(ii,3);
-    
    for  jj = 1:999 
     st_2 =  data_VAPS.data(jj,3);
-    
     if st_1 == st_2
-        style_pred(ii,jj) = 0;
-        
+        style_pred(ii,jj) = 0; 
     else 
         style_pred(ii,jj) = 1;
-   
    end 
    end 
-
 end 
-
 style_predictor = squareform(style_pred)';
-
-
 %% 
 cat_pred = [];
 for ii = 1:999 
-    
     ct_1 =  data_VAPS.data(ii,4);
-    
    for  jj = 1:999 
     ct_2 =  data_VAPS.data(jj,4);
-    
     if ct_1 == ct_2
         cat_pred(ii,jj) = 0;
-        
     else 
         cat_pred(ii,jj) = 1;
-   
    end 
    end 
-
 end 
-
 cat_predictor = squareform(cat_pred)';
-
 %% 
 for kk = 1:2
     for ii =1: size(ds_corr,3)
-    
     eeg_pred = squareform(squeeze(ds_corr(:,:,ii)))'; 
-
     if kk == 1
         corr_eeg(1,ii)= atanh(cosmo_corr(style_predictor,eeg_pred,'Spearman')); 
     else 
-        corr_eeg(2,ii)= atanh(cosmo_corr(cat_predictor,eeg_pred,'Spearman')); 
-
+        corr_eeg(2,ii)= atanh(cosmo_corr(cat_predictor,eeg_pred,'Spearman'));
     end 
         if (rem(ii,50) ==0)
             disp(['time bin ' num2str(ii) ' processed'])
         end 
-
     end 
-
 end 
-
 %% 
-
 plot(data_subset_bs.time, corr_eeg(1,:))
 hold on 
 plot(data_subset_bs.time, corr_eeg(2,:))
@@ -303,7 +257,6 @@ legend('Style', 'Category')
 xlim([-0.05 1.0])
 title('Third Participant')
 %%
-
 plot(data_subset_bs.time, corr_behav_eeg(1,:))
 hold on 
 plot(data_subset_bs.time, corr_behav_eeg(2,:))
@@ -324,3 +277,35 @@ ylabel('Correlation')
 legend('Liking','Valence','Arousal', 'Complexity','Familarity', 'Style','Category')
 xlim([-0.05 1.0])
 title('Third Participant')
+%%
+variables = {'Liking', 'Valence', 'Arousal', 'Complexity', 'Familiarity', 'Style', 'Category'};
+var_idx = [8, 10, 12, 14, 16, 3, 4]; 
+data_matrix = data_VAPS.data(:, var_idx);
+
+partial_corr = zeros(size(data_matrix, 2));
+
+for i = 1: size(data_matrix, 2)
+    for j = 1: size(data_matrix, 2)
+        if j ~= i
+            control_vars = setdiff(1:size(data_matrix, 2), [i, j]);
+            partial_corr(i, j) = partialcorr(data_matrix(:, i), data_matrix(:, j), data_matrix(:, control_vars));
+        else
+            partial_corr(i, j) = 1;
+        end
+    end
+end
+disp("Partial Correlation Matrix:");
+disp(partial_corr);
+
+% Plot partial correlation matrix
+figure;
+imagesc(partial_corr);
+colorbar;
+title('Partial Correlation Matrix');
+xticks(1:size(data_matrix, 2));
+yticks(1:size(data_matrix, 2));
+xticklabels(variables);
+yticklabels(variables);
+xlabel('Predictors');
+ylabel('Predictors');
+axis square;
