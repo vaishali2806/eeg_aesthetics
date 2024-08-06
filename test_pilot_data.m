@@ -278,42 +278,41 @@ legend('Liking','Valence','Arousal', 'Complexity','Familarity', 'Style','Categor
 xlim([-0.05 1.0])
 title('Third Participant')
 %%
+variables = {'Liking', 'Valence', 'Arousal', 'Complexity', 'Familiarity', 'Style', 'Category'};
 feature_matrix = [pred_behav, style_predictor, cat_predictor];
 num_vars = 7;
-partial_corr_behav_eeg = zeros(num_vars, numTimeBins);
+partial_corr_behav_eeg = zeros(num_vars, num_vars, numTimeBins);
 
-for time_bin = 1:numTimeBins
-    eeg_pred = squareform(squeeze(ds_corr(:,:, time_bin)))';
-    
-    for feature_idx = 1: num_vars
-        current_feature = feature_matrix(:, feature_idx);
-        all_feature_matrix = setdiff(1:num_vars, feature_idx);
-        partial_corr_behav_eeg(feature_idx, time_bin) = partialcorr(current_feature, eeg_pred, feature_matrix(:, all_feature_matrix));
-    end 
-    if (rem(time_bin,10) ==0)
-            disp(['time bin ' num2str(time_bin) ' processed'])
-    end 
+for feature_idx_1 = 1:num_vars
+    for feature_idx_2 = 1:num_vars
+        if feature_idx_2 ~= feature_idx_1
+            for time_bin = 1: numTimeBins
+                eeg_pred = squareform(squeeze(ds_corr(:,:, time_bin)))';
+                current_feature = feature_matrix(:, feature_idx_1);
+                control_vars = setdiff(1:num_vars, [feature_idx_1, feature_idx_2]);
+                partial_corr_behav_eeg(feature_idx_1, feature_idx_2, time_bin) = ...
+                    partialcorr(current_feature, eeg_pred, feature_matrix(:, control_vars));
+            end
+            if rem(time_bin, 10) == 0
+                disp(['Time bin ' num2str(time_bin) ' processed for variable ' num2str(feature_idx_1) ' and variable ' num2str(feature_idx_2)]);
+            end
+        end
+    end
+end
+%%
+for main_var = 1:num_vars
+    figure;
+    hold on;
+    for removed_var = 1:num_vars
+        if main_var ~= removed_var
+            plot(data_subset_bs.time, squeeze(partial_corr_behav_eeg(main_var, removed_var, :)), 'DisplayName', ['Removed ' variables{removed_var}]);
+        end
+    end
+    xline(0, '--'); 
+    yline(0, '--');
+    xlabel('Time');
+    ylabel('Partial Correlation');
+    title(['Partial Correlation for ' variables{main_var}]);
+    legend;
 end
 
-figure;
-plot(data_subset_bs.time, partial_corr_behav_eeg(1, :));
-hold on;
-plot(data_subset_bs.time, partial_corr_behav_eeg(2, :));
-hold on;
-plot(data_subset_bs.time, partial_corr_behav_eeg(3, :));
-hold on;
-plot(data_subset_bs.time, partial_corr_behav_eeg(4, :));
-hold on;
-plot(data_subset_bs.time, partial_corr_behav_eeg(5, :));
-hold on;
-plot(data_subset_bs.time, partial_corr_behav_eeg(6, :));
-hold on;
-plot(data_subset_bs.time, partial_corr_behav_eeg(7, :));
-hold on;
-xline(0, '--'); 
-yline(0, '--');
-xlabel('Time');
-ylabel('Partial Correlation');
-legend('Liking', 'Valence', 'Arousal', 'Complexity', 'Familiarity', 'Style', 'Category');
-xlim([-0.05 1.0]);
-title('Partial Correlations with EEG Data');
