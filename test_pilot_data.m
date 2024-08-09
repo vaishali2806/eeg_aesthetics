@@ -300,8 +300,10 @@ for feature_idx_1 = 1:num_vars
     end
 end
 %%
+corr_behav_eeg_final = [corr_behav_eeg ; corr_eeg];
 for main_var = 1:num_vars
     figure;
+    plot(data_subset_bs.time, corr_behav_eeg_final(main_var, :), 'DisplayName', variables{main_var});
     hold on;
     for removed_var = 1:num_vars
         if main_var ~= removed_var
