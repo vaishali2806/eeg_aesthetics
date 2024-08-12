@@ -299,7 +299,7 @@ for feature_idx_1 = 1:num_vars
                     partialcorr(current_feature, eeg_pred, feature_matrix(:, control_vars));
             end
             if rem(time_bin, 10) == 0
-                disp(['Time bin ' num2str(time_bin) ' processed for variable ' num2str(feature_idx_1) ' and variable ' num2str(feature_idx_2)]);
+                disp(['Time bin ' num2str(time_bin) ' processed for variable ' num2str(variables{feature_idx_1}) ' and variable ' num2str(variables{feature_idx_2})]);
             end
         end
     end
