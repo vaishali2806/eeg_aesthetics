@@ -191,7 +191,7 @@ feature_colors = containers.Map(variables, {...
     [0.6350, 0.0780, 0.1840] ...   
 });
 lineStyles = {'-', '-.'};
-lineWidths = [2, 1];
+lineWidths = [2, 1, 3];
 %% 
 
 cfg = [];
@@ -241,38 +241,39 @@ for kk = 1:2
     end 
 end 
 %%
+corr_behav_eeg_final = [corr_behav_eeg ; corr_eeg];
 legend_handles = [];
-h = plot(data_subset_bs.time, corr_behav_eeg(1,:),...
+h = plot(data_subset_bs.time, corr_behav_eeg_final(1,:),...
     "Color", feature_colors("Liking"), "LineStyle","-", ...
     "LineWidth", lineWidths(2), "DisplayName", "Liking");
 legend_handles = [legend_handles, h];
 hold on 
-h = plot(data_subset_bs.time, corr_behav_eeg(2,:),...
+h = plot(data_subset_bs.time, corr_behav_eeg_final(2,:),...
     "Color", feature_colors("Valence"), "LineStyle","-", ...
     "LineWidth", lineWidths(2), "DisplayName", "Valence");
 legend_handles = [legend_handles, h];
 hold on 
-h = plot(data_subset_bs.time, corr_behav_eeg(3,:),...
+h = plot(data_subset_bs.time, corr_behav_eeg_final(3,:),...
     "Color", feature_colors("Arousal"), "LineStyle","-", ...
     "LineWidth", lineWidths(2), "DisplayName", "Arousal");
 legend_handles = [legend_handles, h];
 hold on 
-h = plot(data_subset_bs.time, corr_behav_eeg(4,:),...
+h = plot(data_subset_bs.time, corr_behav_eeg_final(4,:),...
     "Color", feature_colors("Complexity"), "LineStyle","-", ...
     "LineWidth", lineWidths(2), "DisplayName", "Complexity");
 legend_handles = [legend_handles, h];
 hold on 
-h = plot(data_subset_bs.time, corr_behav_eeg(5,:),...
+h = plot(data_subset_bs.time, corr_behav_eeg_final(5,:),...
     "Color", feature_colors("Familiarity"), "LineStyle","-", ...
     "LineWidth", lineWidths(2), "DisplayName", "Familiarity");
 legend_handles = [legend_handles, h];
 hold on 
-h = plot(data_subset_bs.time, corr_eeg(1,:),...
+h = plot(data_subset_bs.time, corr_behav_eeg_final(6,:),...
     "Color", feature_colors("Style"), "LineStyle","-", ...
     "LineWidth", lineWidths(2), "DisplayName", "Style");
 legend_handles = [legend_handles, h];
 hold on 
-h = plot(data_subset_bs.time, corr_eeg(2,:),...
+h = plot(data_subset_bs.time, corr_behav_eeg_final(7,:),...
     "Color", feature_colors("Category"), "LineStyle","-", ...
     "LineWidth", lineWidths(2), "DisplayName", "Category");
 legend_handles = [legend_handles, h];
@@ -281,58 +282,47 @@ xline(0,'--'); hold on ; yline(0,'--');
 xlabel('Time');
 ylabel('Simple Correlation');
 legend(legend_handles, 'Location', 'best');
-xlim([min(data_subset_bs.time), max(data_subset_bs.time)])
+grid off;
+ylim([min(corr_behav_eeg_final(:)), max(corr_behav_eeg_final(:))]);
+xlim([min(data_subset_bs.time), max(data_subset_bs.time)]);
 title('Thirteenth Participant - Simple Correlation')
 %%
 feature_matrix = [pred_behav, style_predictor, cat_predictor];
 num_vars = 7;
-partial_corr_behav_eeg = zeros(num_vars, num_vars, numTimeBins);
+partial_corr_behav_eeg = zeros(num_vars, numTimeBins);
 
-for feature_idx_1 = 1:num_vars
-    for feature_idx_2 = 1:num_vars
-        if feature_idx_2 ~= feature_idx_1
-            for time_bin = 1: numTimeBins
-                eeg_pred = squareform(squeeze(ds_corr(:,:, time_bin)))';
-                current_feature = feature_matrix(:, feature_idx_1);
-                control_vars = setdiff(1:num_vars, [feature_idx_1, feature_idx_2]);
-                partial_corr_behav_eeg(feature_idx_1, feature_idx_2, time_bin) = ...
-                    partialcorr(current_feature, eeg_pred, feature_matrix(:, control_vars));
-            end
-            if rem(time_bin, 10) == 0
-                disp(['Time bin ' num2str(time_bin) ' processed for variable ' num2str(variables{feature_idx_1}) ' and variable ' num2str(variables{feature_idx_2})]);
-            end
-        end
-    end
+for time_bin = 1:numTimeBins
+    eeg_pred = squareform(squeeze(ds_corr(:,:, time_bin)))';
+    
+    for feature_idx = 1: num_vars
+        current_feature = feature_matrix(:, feature_idx);
+        all_feature_matrix = setdiff(1:num_vars, feature_idx);
+        partial_corr_behav_eeg(feature_idx, time_bin) = partialcorr(current_feature, eeg_pred, feature_matrix(:, all_feature_matrix));
+    end 
+    if (rem(time_bin,10) ==0)
+            disp(['time bin ' num2str(time_bin) ' processed'])
+    end 
 end
 %%
-corr_behav_eeg_final = [corr_behav_eeg ; corr_eeg];
-for main_var = 1:num_vars
-    figure;
-    set(gcf, 'Position', get(0, 'Screensize'));
-    legend_handles = [];
-
-    h = plot(data_subset_bs.time, corr_behav_eeg_final(main_var, :),...
-        'Color', feature_colors(variables{main_var}), 'LineStyle', lineStyles{1}, ...
-        'LineWidth', lineWidths(1), 'DisplayName', variables{main_var});
+figure;
+hold on;
+legend_handles = [];
+for feature_idx = 1 : num_vars
+    h = plot(data_subset_bs.time,partial_corr_behav_eeg(feature_idx, :), ...
+        'Color', feature_colors(variables{feature_idx}), ...
+        'DisplayName', variables{feature_idx});
     legend_handles = [legend_handles, h];
-    hold on;
-    for removed_var = 1:num_vars
-        if main_var ~= removed_var
-            h = plot(data_subset_bs.time, ...
-                 squeeze(partial_corr_behav_eeg(main_var, removed_var, :)), ...
-                 'Color', feature_colors(variables{removed_var}), 'LineStyle', lineStyles{2}, ...
-                 'LineWidth', lineWidths(2), ...
-                 'DisplayName', [variables{main_var} '-' variables{removed_var}]);
-            legend_handles = [legend_handles, h];
-        end
-    end
-    xline(0, '--'); 
-    yline(0, '--');
-
-    xlim([min(data_subset_bs.time), max(data_subset_bs.time)]);
-    xlabel('Time');
-    ylabel('Partial Correlation');
-    title(['Partial Correlation for ' variables{main_var}]);
-    legend(legend_handles, 'Location', 'best');
 end
+
+hold off;
+
+xline(0, '--'); 
+yline(0, '--');
+ylim([min(partial_corr_behav_eeg(:)), max(partial_corr_behav_eeg(:))]);
+xlim([min(data_subset_bs.time), max(data_subset_bs.time)]);
+xlabel('Time');
+ylabel('Partial Correlation');
+title('Partial Correlation');
+legend(legend_handles, 'Location', 'best');
+grid off;
 
