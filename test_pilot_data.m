@@ -10,6 +10,7 @@ logfile = load('D:\Internship\Data-VG\log\RSVP_eeg_s3.mat');
 %%
 data_VAPS = load('D:\Internship\database_VAPS.mat');
  %% 
+ save_idx = 1;
 for ii = 1: length(logfile.dat.new_stim)
     
     if logfile.dat.trigs(ii) ==1
@@ -27,7 +28,8 @@ for ii = 1: length(logfile.dat.new_stim)
         end
         
         % Display the result        
-        trials_data(ii,:) = data_VAPS.data(extracted_number,:);
+        trials_data(save_idx,:) = data_VAPS.data(extracted_number,:);
+        save_idx = save_idx + 1;
     end
 end
 
