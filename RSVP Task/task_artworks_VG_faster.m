@@ -23,7 +23,7 @@ try
     cfg.nStim=999;
     cfg.nRep=12;
     cfg.trialamount=cfg.nRep*cfg.nStim;  % n Stimuli, n Repetitions
-    cfg.blocksize = 300;
+    cfg.blocksize = 200;
     
     cfg.picsize_hor=300; %Size of the images (this needs to be square for the ratings, pix size is fixed below)
     cfg.picsize_vert=300;
@@ -40,8 +40,8 @@ try
     cfg.screensize=[w.width,w.height]; %Store horizontal/vertical pixels (i.e., resolution)
     
     cfg.time_stim=.05; %Duration of the Stimulus
-    cfg.time_wait=1; %quick wait between after the stimulus
-    cfg.time_iti=0; %Duration of the inter-trial interval (will be jittered by +/-200ms)
+    % cfg.time_wait=1; %quick wait between after the stimulus
+    % cfg.time_iti=0; %Duration of the inter-trial interval (will be jittered by +/-200ms)
     
     KbName('UnifyKeyNames'); %Fix Mac/Windows differences (hopefully)
     cfg.escapeKey=KbName('q'); %Get key Codes (indices in the KeyCode Matrix) for a few keys
@@ -70,9 +70,9 @@ try
     stim_frames=real_stim/(1000/cfg.monitorFrameRate);
     time_stim=cfg.monitorFlipInterval*(stim_frames-0.5);
     
-    real_iti=1000*cfg.time_iti; %For the stimulus
-    iti_frames=real_iti/(1000/cfg.monitorFrameRate);
-    time_iti=cfg.monitorFlipInterval*(iti_frames-0.5);
+    % real_iti=1000*cfg.time_iti; %For the stimulus
+    % iti_frames=real_iti/(1000/cfg.monitorFrameRate);
+    % time_iti=cfg.monitorFlipInterval*(iti_frames-0.5);
     
     clear hidecursor;
     %HideCursor;
@@ -203,8 +203,8 @@ try
         Screen('DrawDots',mainwindow,fixposition,5,cfg.fixcolor);
          if trial == 1
             ON =Screen('Flip',mainwindow);
-        else
-            ON =Screen('Flip',mainwindow,ON + time_iti);
+        % else
+        %     ON =Screen('Flip',mainwindow,ON + time_iti);
         end
         
         flip_1_timing = ON;
@@ -242,7 +242,7 @@ try
             end
             Screen('FillOval',mainwindow,cfg.windowcolor,picrectangle);
             DrawFormattedText(mainwindow,'Found the Pikachu art ?','center','center',cfg.textcolor);
-            ON=Screen('Flip',mainwindow,ON+cfg.time_wait);
+            ON=Screen('Flip',mainwindow,ON); %+cfg.time_wait);
             
             %show cursor
             SetMouse(fixposition(1),fixposition(2));

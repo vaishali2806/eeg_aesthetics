@@ -33,13 +33,13 @@ addpath('C:\Masters Cyber\Master Thesis\Thesis_VG\data-ort.mat');
 for ii = 1 : length(dist_block); 
     
     if ii < length(dist_block)
-         data = dat.stim(1,(ii -1)* 300 + 1 : (ii)* 300);
-         aspect_ratio = dat.aspect_ratio(1,(ii -1)* 300 + 1 : (ii)* 300);
-         ort = dat.ort(1,(ii -1)* 300 + 1 : (ii)* 300);
+         data = dat.stim(1,(ii -1)* 200 + 1 : (ii)* 200);
+         aspect_ratio = dat.aspect_ratio(1,(ii -1)* 200 + 1 : (ii)* 200);
+         ort = dat.ort(1,(ii -1)* 200 + 1 : (ii)* 200);
     else 
-        data = dat.stim(1,(ii -1)* 300 + 1 : end);
-        aspect_ratio = dat.ort(1,(ii -1)* 300 + 1 : end);
-        ort = dat.ort(1,(ii -1)* 300 + 1 : end);
+        data = dat.stim(1,(ii -1)* 200 + 1 : end);
+        aspect_ratio = dat.ort(1,(ii -1)* 200 + 1 : end);
+        ort = dat.ort(1,(ii -1)* 200 + 1 : end);
     end 
     
     
