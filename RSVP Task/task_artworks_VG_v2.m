@@ -154,7 +154,7 @@ try
     
                                 dat = add_distractors(dat, cfg.blocksize);
     
-    dat = generate_mask_indices(dat,200);
+    dat = generate_mask_indices(dat,200, 0);
     
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
