@@ -299,79 +299,11 @@ try
 
         if ~(rem(trial, cfg.blocksize))
             ON=Screen('Flip',mainwindow,ON);
-            a1=360/2;
-            start_angle=360*rand;  % A random start
-            cm=colormap(gray(4))*255;
-            for i=1:2
-                a0=start_angle+(i-1)*a1;
-                Screen('FillArc',mainwindow,cm(i+2,:),wheelrectangle,a0,a1);
-                r=1.25*(wheelrectangle(3)-wheelrectangle(1))/2;
-                x_text=fixposition(1)+r*cos(deg2rad(start_angle+(i-1)*a1-1.5*a1-90));
-                y_text=fixposition(2)+r*sin(deg2rad(start_angle+(i-1)*a1-1.5*a1-90));
-                if i==1
-                    DrawFormattedText(mainwindow,'no',x_text,y_text,cfg.textcolor);
-                else
-                    DrawFormattedText(mainwindow,'yes',x_text,y_text,cfg.textcolor);
-                end
-            end
-            Screen('FillOval',mainwindow,cfg.windowcolor,picrectangle);
-            DrawFormattedText(mainwindow,'Found the Pikachu art ?','center','center',cfg.textcolor);
-            ON=Screen('Flip',mainwindow,ON + cfg.time_wait);
-
-            %show cursor
-            SetMouse(fixposition(1),fixposition(2));
-            ShowCursor('Hand');
-
-            %keep waiting for them to select something
-            dat.resp1(trial)=0;
-            cm=colormap(gray(9))*255;
-
-            while dat.resp1(trial)==0 || keyCode(cfg.spaceKey)~=1
-                [keyIsDown,timeSecs,keyCode]=KbCheck(-1);
-                [x,y,buttons]=GetMouse;
-                if buttons(1)~=0
-                    for i=1:2
-                        r=max(cfg.screensize);
-                        ax0=deg2rad(start_angle+(i-1)*a1-90);
-                        ax1=deg2rad(start_angle+i*a1-90);
-                        if ax0>ax1
-                            t=linspace(ax1,ax0);
-                        else
-                            t=linspace(ax0,ax1);
-                        end
-                        x_arc=[fixposition(1),fixposition(1)+r*cos(t),fixposition(1)];
-                        y_arc=[fixposition(2),fixposition(2)+r*sin(t),fixposition(2)];
-                        cursor_dist=dist([x,y;fixposition(1),fixposition(2)]');
-                        if inpolygon(x,y,x_arc,y_arc)==1 && cursor_dist(2)>=(picrectangle(3)-picrectangle(1))/2 && cursor_dist(2)<=(wheelrectangle(3)-wheelrectangle(1))/2
-                            for j=1:2
-                                a0=start_angle+(j-1)*a1;
-                                if j==i
-                                    Screen('FillArc',mainwindow,cfg.fixcolor,wheelrectangle,a0,a1);
-                                else
-                                    Screen('FillArc',mainwindow,cm(j+2,:),wheelrectangle,a0,a1);
-                                end
-                                r=1.25*(wheelrectangle(3)-wheelrectangle(1))/2;
-                                x_text=fixposition(1)+r*cos(deg2rad(start_angle+(j-1)*a1-1.5*a1-90));
-                                y_text=fixposition(2)+r*sin(deg2rad(start_angle+(j-1)*a1-1.5*a1-90));
-                                if j==1
-                                    DrawFormattedText(mainwindow,'no',x_text,y_text,cfg.textcolor);
-                                else
-                                    DrawFormattedText(mainwindow,'yes',x_text,y_text,cfg.textcolor);
-                                end
-                            end
-                            Screen('FillOval',mainwindow,cfg.windowcolor,picrectangle);
-                            DrawFormattedText(mainwindow,'Found the Pikachu art ?','center','center',cfg.textcolor);
-                            Screen('Flip', mainwindow);
-                            dat.resp1(trial)=i;
-                        end
-                    end
-                end
-            end
-            while dat.resp1(trial)==1 || keyCode(cfg.spaceKey)==1
-                Screen('DrawDots',mainwindow,fixposition,5,cfg.fixcolor);
-                ON=Screen('Flip',mainwindow, time_stim);
-                break;
-            end
+            DrawFormattedText(mainwindow,['Instructions \n \n',...
+                'please keep central fixation \n \n ', ...
+                'press space to proceed...'],'center','center',cfg.textcolor);
+            Screen('Flip',mainwindow);
+            KbWait(-1);
         end
         HideCursor;
         %close texture
