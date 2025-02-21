@@ -29,7 +29,7 @@ try
 
     cfg.nStim=999;
     cfg.nRep=12;
-    cfg.trialamount=cfg.nRep*cfg.nStim;  % n Stimuli, n Repetitions
+    cfg.trialamount= cfg.nRep*cfg.nStim;  % n Stimuli, n Repetitions
     cfg.blocksize = 200;
 
     cfg.picsize_hor=300; %Size of the images (this needs to be square for the ratings, pix size is fixed below)
@@ -153,7 +153,7 @@ try
 
     dat = add_distractors_faster(dat, cfg.blocksize);
 
-    dat = generate_mask_indices(dat,200);
+    dat = generate_mask_indices(dat,200, 1);
 
     dat = generate_trigs(dat);
 
@@ -204,7 +204,7 @@ try
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     DrawFormattedText(mainwindow,['instructions \n \n',...
         'please keep central fixation \n \n ', ...
-        'then use the mouse to answer the questions. \n \n press space to proceed...'],'center','center',cfg.textcolor);
+        'press space to proceed...'],'center','center',cfg.textcolor);
     Screen('Flip',mainwindow);
     KbWait(-1);
 
@@ -215,7 +215,6 @@ try
         [ keyIsDown, seconds, keyCode ] = KbCheck(-1);
         if keyCode(escapeKey) == 1
             break;
-
             sca;
         end
 
@@ -289,6 +288,7 @@ try
             flip_duration(trial,2) = flip_1_timing - flip_2_timing;
         end
 
+        %stimulus off
         Screen('DrawDots',mainwindow,fixposition,5,cfg.fixcolor);
         ON=Screen('Flip',mainwindow,ON + time_stim);
 
@@ -299,12 +299,12 @@ try
 
         if ~(rem(trial, cfg.blocksize))
             ON=Screen('Flip',mainwindow,ON);
-            ON = Screen('Flip', mainwindow, ON + cfg.time_wait);
-            DrawFormattedText(mainwindow,['Instructions \n \n',...
-                'please keep central fixation \n \n ', ...
-                'press space to proceed...'],'center','center',cfg.textcolor);
-            Screen('Flip',mainwindow);
-            KbWait(-1);
+            ON=Screen('Flip',mainwindow,ON + cfg.time_wait);
+            DrawFormattedText(mainwindow,['instructions \n \n',...
+            'please keep central fixation \n \n ', ...
+            'press space to proceed...'],'center','center',cfg.textcolor);
+        Screen('Flip',mainwindow);
+        KbWait(-1);
         end
         HideCursor;
         %close texture
@@ -317,7 +317,7 @@ try
         delete(SerialPortObj);
         clear SerialPortObj;
     end
-    save(['RSVP_eeg_s',num2str(dat.subjcode)],'cfg','dat');
+    save(['RSVP_eeg_s_',num2str(dat.subjcode), 'f'],'cfg','dat');
 catch
     sca
     lasterr
