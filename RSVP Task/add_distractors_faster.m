@@ -38,7 +38,7 @@ for ii = 1 : length(dist_block);
          ort = dat.ort(1,(ii -1)* 200 + 1 : (ii)* 200);
     else 
         data = dat.stim(1,(ii -1)* 200 + 1 : end);
-        aspect_ratio = dat.aspect_ratio(1,(ii -1)* 200 + 1 : end);
+        aspect_ratio = dat.ort(1,(ii -1)* 200 + 1 : end);
         ort = dat.ort(1,(ii -1)* 200 + 1 : end);
     end 
     
