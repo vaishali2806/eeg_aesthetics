@@ -1,5 +1,5 @@
 
-function data_out = add_distractors(dat, blocksize)
+function data_out = add_distractors_faster(dat, blocksize)
 %%% This function adds triggers
 
 dat = dat;
@@ -47,7 +47,7 @@ for ii = 1 : length(dist_block);
         dist_img_blk = dist_img_blk + 1;
         A = data;
         b = ['dist_' num2str(dist_ind(dist_img_blk)) '.jpg'];
-        k = randi([1 49]); %row position, can be 0,1,2 or 3 in this case
+        k = randi([1 199]); %row position, can be 0,1,2 or 3 in this case
         data = [A(1,1:k) b A(1,k+1:end)];
         
         % load image
