@@ -151,7 +151,7 @@ try
         dat.aspect_ratio{trial} = data_ort(stim_nr,5);
     end
 
-    dat = add_distractors(dat, cfg.blocksize);
+    dat = add_distractors_faster(dat, cfg.blocksize);
 
     dat = generate_mask_indices(dat,200);
 
