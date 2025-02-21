@@ -30,7 +30,7 @@ try
     cfg.nStim=999;
     cfg.nRep=12;
     cfg.trialamount=cfg.nRep*cfg.nStim;  % n Stimuli, n Repetitions
-    cfg.blocksize = 50;
+    cfg.blocksize = 200;
 
     cfg.picsize_hor=300; %Size of the images (this needs to be square for the ratings, pix size is fixed below)
     cfg.picsize_vert=300;
