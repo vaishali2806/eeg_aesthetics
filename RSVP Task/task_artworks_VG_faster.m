@@ -299,6 +299,7 @@ try
 
         if ~(rem(trial, cfg.blocksize))
             ON=Screen('Flip',mainwindow,ON);
+            ON = Screen('Flip', mainwindow, ON + cfg.time_wait);
             DrawFormattedText(mainwindow,['Instructions \n \n',...
                 'please keep central fixation \n \n ', ...
                 'press space to proceed...'],'center','center',cfg.textcolor);
