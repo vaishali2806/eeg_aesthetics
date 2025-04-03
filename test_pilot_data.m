@@ -328,3 +328,163 @@ title('Partial Correlation');
 legend(legend_handles, 'Location', 'best');
 grid off;
 
+%%
+% Computing correlations based on style and category 
+
+% Extracting unique styles and categories
+styles = unique(data_VAPS.data(:, 3));
+categories = unique(data_VAPS.data(:, 4));
+
+num_styles = length(styles);
+num_category = length(categories);
+num_time_bins = size(ds_corr, 3);
+%%
+corr_style_liking = zeros(num_styles, num_time_bins);
+corr_category_liking = zeros(num_category, num_time_bins);
+%%
+% computing correlation for each style
+
+for s = 1: num_styles
+    style_idx = data_VAPS.data(:, 3) == styles(s);
+    liking_values = data_VAPS.data(style_idx, 8);
+
+    style_liking_pred = squareform(pdist(liking_values, 'cityblock'));
+
+    for t = 1: num_time_bins
+        eeg_pred = ds_corr(style_idx, style_idx, t);
+        corr_style_liking(s, t) = atanh(cosmo_corr(style_liking_pred(:), eeg_pred(:), 'Spearman'));
+    end
+    disp(['Style ', num2str(styles(s)), ' processed']);
+end
+
+%%
+% Computing Correlationg for each category 
+
+for c = 1: num_category
+    cat_idx = data_VAPS.data(:, 4) == categories(c);
+    liking_values = data_VAPS.data(cat_idx, 8);
+
+    cat_liking_pred = squareform(pdist(liking_values, 'cityblock'));
+
+    for t = 1: num_time_bins
+        eeg_pred = ds_corr(cat_idx, cat_idx, t);
+        corr_category_liking(c, t) = atanh(cosmo_corr(cat_liking_pred(:), eeg_pred(:), 'Spearman'));
+    end
+    disp(['Category ', num2str(categories(c)), ' processed']);
+end
+%%
+style_name = ["Renaissance and Mannerism", "Baroque and Rococo", "Idealistic tendencies", ...
+              "Realistic tendencies I", "Impressionistic tendencies", "Postimpressionistic tendencies", ...
+              "Expressionistic tendencies", "Cubistic tendencies", "Realistic tendencies II", ...
+              "Surrealistic tendencies", "Constructivist tendencies", "Abstract expressionistic tendencies", ...
+              "Informal tendencies"];
+
+category_name = ["Scenes", "Portrait", "Landscape", "Still life", "Toward Abstraction"];
+colors_styles = lines(num_styles);
+colors_categories = lines(num_category);
+%%
+
+% figure; hold on;
+% legend_styles = [];
+% for i = 1:num_styles
+%    h = plot(data_subset_bs.time, corr_style_liking(i, :),...
+%        'Color', colors_styles(i, :),...
+%        'LineWidth', 1.5,...
+%        'DisplayName', style_name(i));
+%    legend_styles = [legend_styles, h];
+% end
+% plot(data_subset_bs.time, mean(corr_style_liking, 1), 'k', 'LineWidth', 2, 'DisplayName', 'Mean Correlation');
+% 
+% xline(0, '--'); 
+% yline(0, '--');
+% ylim([min(corr_style_liking(:)), max(corr_style_liking(:))]);
+% xlim([min(data_subset_bs.time), max(data_subset_bs.time)]);
+% xlabel('Time');
+% ylabel('Correlation');
+% title('Correlation of Different Styles');
+% legend(legend_styles, 'Location', 'best');
+% grid off;
+% hold off;
+% %%
+% figure;
+% hold on;
+% legend_cat = [];
+% for i = 1:num_category
+%    h = plot(data_subset_bs.time, corr_category_liking(i, :),...
+%        'Color', colors_categories(i, :),...
+%        'LineWidth', 1.5,...
+%        'DisplayName', category_name(i));
+%    legend_cat = [legend_cat, h];
+% end
+% 
+% hold off;
+% 
+% xline(0, '--'); 
+% yline(0, '--');
+% ylim([min(corr_category_liking(:)), max(corr_category_liking(:))]);
+% xlim([min(data_subset_bs.time), max(data_subset_bs.time)]);
+% xlabel('Time');
+% ylabel('Correlation');
+% title('Correlation of Different Categories');
+% legend(legend_cat, 'Location', 'best');
+% grid off;
+%%
+
+% Style Graph
+num_rows = ceil(sqrt(num_styles));
+num_cols = ceil(num_styles / num_rows);
+
+figure;
+for i = 1:num_styles
+    subplot(num_rows, num_cols, i);
+    h = plot(data_subset_bs.time, corr_style_liking(i, :),...
+         'Color', colors_styles(i, :), 'LineWidth', 1.5);
+    hold on;
+    mean_corr = mean(corr_style_liking(i, :)); 
+    plot([min(data_subset_bs.time), max(data_subset_bs.time)],...
+        [mean_corr, mean_corr], 'k--', 'LineWidth', 1.5,...
+        'DisplayName', 'Mean Correlation');
+    
+    xline(0, '--'); 
+    yline(0, '--');
+    ylim([min(corr_style_liking(:)), max(corr_style_liking(:))]);
+    xlim([min(data_subset_bs.time), max(data_subset_bs.time)]);
+    
+    title(style_name(i), 'FontSize', 10);
+    xlabel('Time');
+    ylabel('Correlation');
+    
+    grid off;
+end
+
+sgtitle('Liking Correlation of Different Styles Over Time');
+%%
+
+%Category Graph
+num_rows = ceil(sqrt(num_category)); 
+num_cols = ceil(num_category / num_rows);
+
+figure;
+for i = 1:num_category
+    subplot(num_rows, num_cols, i);
+    plot(data_subset_bs.time, corr_category_liking(i, :),...
+         'Color', colors_categories(i, :), 'LineWidth', 1.5);
+    hold on;
+    mean_corr = mean(corr_category_liking(i, :)); 
+    plot([min(data_subset_bs.time), max(data_subset_bs.time)],...
+        [mean_corr, mean_corr], 'k--', 'LineWidth', 1.5,...
+        'DisplayName', 'Mean Correlation');
+    
+    xline(0, '--'); 
+    yline(0, '--');
+    ylim([min(corr_category_liking(:)), max(corr_category_liking(:))]);
+    xlim([min(data_subset_bs.time), max(data_subset_bs.time)]);
+    
+    title(category_name(i), 'FontSize', 10); 
+    xlabel('Time');
+    ylabel('Correlation');
+    
+    grid off;
+end
+
+sgtitle('Liking Correlation of Different Categories Over Time');
