@@ -1,4 +1,4 @@
-
+% 
 function data_out = add_distractors_faster(dat, blocksize)
 %%% This function adds triggers
 
@@ -28,9 +28,9 @@ dat.new_asp = {};
 dat.new_ort = {};
 
 
-addpath('C:\Masters Cyber\Master Thesis\Thesis_VG\data-ort.mat');
+addpath('C:\Users\JLU-SU\Desktop\Stimilu task\data-ort.mat');
 
-for ii = 1 : length(dist_block); 
+for ii = 1 : length(dist_block)
     
     if ii < length(dist_block)
          data = dat.stim(1,(ii -1)* 200 + 1 : (ii)* 200);
@@ -38,7 +38,7 @@ for ii = 1 : length(dist_block);
          ort = dat.ort(1,(ii -1)* 200 + 1 : (ii)* 200);
     else 
         data = dat.stim(1,(ii -1)* 200 + 1 : end);
-        aspect_ratio = dat.ort(1,(ii -1)* 200 + 1 : end);
+        aspect_ratio = dat.aspect_ratio(1,(ii -1)* 200 + 1 : end);
         ort = dat.ort(1,(ii -1)* 200 + 1 : end);
     end 
     

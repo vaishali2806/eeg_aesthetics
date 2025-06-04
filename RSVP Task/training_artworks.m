@@ -1,17 +1,18 @@
-    %% Define some stuff!
+%% Define some stuff!#
 sca
 tic
 clc %Remove old stuff
 clear all
 close all
-load('data-ort.mat');
+load('data-ort.mat')
 try
 
     start_time=GetSecs; %Start timer
 
-    addpath('D:\EEG_aesthetics_SN_VG\Thesis_VG\stimulus\art_all_renamed\'); %Add the path to stimuli
+     %rng(10)
+    addpath('D:\EEG_aesthetics_SN_VG\Thesis_VG\stimulus\art_all_renamed'); %Add the path to stimuli
 
-    cfg.eeg_mode=1; %toggle EEG mode (set to 0 to run it without the EEG)
+    cfg.eeg_mode=0; %toggle EEG mode (set to 0 to run it without the EEG)
 
     % Added for the trigger
     if cfg.eeg_mode==1
@@ -45,7 +46,7 @@ try
     cfg.screen_dist=60; %Distance to screen in cm
 
     w=Screen('Resolution',0); %Get screen properties
-    cfg.screensize=[w.width,w.height]; %./2; %Store horizontal/vertical pixels (i.e., resolution)
+    cfg.screensize=[w.width,w.height] %./2; %Store horizontal/vertical pixels (i.e., resolution)
 
     cfg.time_stim=.15; %Duration of the Stimulus
     cfg.time_wait=1; %quick wait between after the stimulus
@@ -56,9 +57,11 @@ try
     cfg.spaceKey=KbName('space');
 
     dat.subjcode=input('Enter subject number: '); %Ask for subject number
-    dat.sub_gender = input('Enter subject gender (1: Male 2: Female 3:other ) : ');
-    dat.sub_age = input('Enter subject age : ');
-    rng(dat.subjcode); %Set random numbers to be truly random (this can throw an error -> remove it then, it does the same more clumsily below)
+    
+     rng(2); %Set random numbers to be truly random (this can throw an error -> remove it then, it does the same more clumsily below)
+  
+
+
 
     %% Screen Setup
     for i=1:dat.subjcode  %This is a workaround if the random number generator doesn't work (e.g., for old matlab versions) to make the random sequences different for all people
@@ -66,12 +69,17 @@ try
     end
 
     Screen('Preference', 'SkipSyncTests', 0);
-    [mainwindow,screen_rect]=Screen('OpenWindow',0,cfg.windowcolor);
+    [mainwindow,screen_rect]=Screen('OpenWindow',0, cfg.windowcolor); %max(Screen('Screens')),[128 128 128], [200 100 2500 1300]);
+    cfg.monitorFrameRate=FrameRate(mainwindow);
+
+    moviefile = ['ptb_recording_subj' num2str(dat.subjcode) '.mp4'];
+    recorder = Screen('CreateMovie', mainwindow, moviefile,  2560, 1440, cfg.monitorFrameRate);
 
     newTextSize=Screen('TextSize', mainwindow, [cfg.fontsize]);  %Specify Font Size
     Screen('TextFont', mainwindow, [cfg.fontname]);  %Specify Font
 
-    cfg.monitorFrameRate=FrameRate(mainwindow); %Get the frame rate of the screen
+     %Get the frame rate of the screen
+    disp(['Frame rate: ', num2str(cfg.monitorFrameRate)]);
     cfg.monitorFlipInterval=Screen('GetFlipInterval',mainwindow); %Get the interval between flips (is a function of the framerate, e.g., 16ms for 60hz)
 
     real_stim=1000*cfg.time_stim; %For the stimulus
@@ -137,12 +145,20 @@ try
     end
 
     %% Stimulus Randomisation
+
+    %%
     num_blocks = round(cfg.nStim * cfg.nRep / cfg.blocksize);
+
+    %num_distractor = num_blocks * 4;
+
+    %distractors = randi(6,1,num_blocks);
 
     t1=[];
     for b=1:cfg.nRep
         t1=[t1;randperm(cfg.nStim)'];
     end
+
+
 
     for trial=1:cfg.trialamount
         %define stimulus name
@@ -157,6 +173,7 @@ try
     dat = generate_mask_indices(dat,200, 0);
 
     dat = generate_trigs(dat);
+    
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %Start Presentation
@@ -168,7 +185,7 @@ try
     KbWait(-1);
 
     trial_timing = [];
-    for trial=1: length(dat.new_stim)%cfg.trialamount
+    for trial=1: 150 %length(dat.new_stim)%cfg.trialamount
 
         escapeKey = KbName('escape');
         [ keyIsDown, seconds, keyCode ] = KbCheck(-1);
@@ -187,21 +204,26 @@ try
         Screen('DrawTexture',mainwindow,stim_tex_rand,[],stimrectangle);
 
         if dat.new_ort{trial} == 1
-            rect_size = [(stimrectangle(3) - stimrectangle(1)) (stimrectangle(4) - stimrectangle(2)) ];
-            img_size = rect_size(2) * dat.new_asp{trial};
+
+            rect_size = [(stimrectangle(3) - stimrectangle(1)) (stimrectangle(4) - stimrectangle(2)) ]
+            img_size = rect_size(2) * dat.new_asp{trial}
             diff = rect_size(1) - img_size;
             Screen('DrawTexture',mainwindow,stim_tex,[],[(stimrectangle(1) + diff/2)  stimrectangle(2) (stimrectangle(1)+ diff/2 + img_size)  stimrectangle(4)]);
+
         else
-            rect_size = [(stimrectangle(3) - stimrectangle(1)) (stimrectangle(4) - stimrectangle(2)) ];
-            img_size = rect_size(1) / dat.new_asp{trial};
+            rect_size = [(stimrectangle(3) - stimrectangle(1)) (stimrectangle(4) - stimrectangle(2)) ]
+            img_size = rect_size(1) / dat.new_asp{trial}
             diff = rect_size(2) - img_size;
             Screen('DrawTexture',mainwindow,stim_tex,[],[stimrectangle(1)   (stimrectangle(2)+ diff/2) stimrectangle(3)  (stimrectangle(2) + img_size + diff/2)]);
+
         end
         Screen('DrawDots',mainwindow,fixposition,5,cfg.fixcolor);
         if trial == 1
             ON =Screen('Flip',mainwindow);
+            Screen('AddFrameToMovie', mainwindow);
         else
             ON =Screen('Flip',mainwindow,ON + time_iti);
+            Screen('AddFrameToMovie', mainwindow);
         end
 
           % Give a trigger once the stimuli is ON
@@ -216,6 +238,8 @@ try
         if trial ~= 1
             flip_duration(trial,2) = flip_1_timing - flip_2_timing;
         end
+        
+
 
         %stimulus off
         Screen('DrawDots',mainwindow,fixposition,5,cfg.fixcolor);
@@ -244,11 +268,13 @@ try
             end
             Screen('FillOval',mainwindow,cfg.windowcolor,picrectangle);
             DrawFormattedText(mainwindow,'Found the Pikachu art ?','center','center',cfg.textcolor);
-            ON=Screen('Flip',mainwindow,ON + cfg.time_wait);
+            ON=Screen('Flip',mainwindow,ON+cfg.time_wait);
+            Screen('AddFrameToMovie', mainwindow);
 
             %show cursor
             SetMouse(fixposition(1),fixposition(2));
             ShowCursor('Hand');
+
 
             %keep waiting for them to select something
             dat.resp1(trial)=0;
@@ -290,31 +316,52 @@ try
                             Screen('FillOval',mainwindow,cfg.windowcolor,picrectangle);
                             DrawFormattedText(mainwindow,'Found the Pikachu art ?','center','center',cfg.textcolor);
                             Screen('Flip', mainwindow);
+                            Screen('AddFrameToMovie', mainwindow);
                             dat.resp1(trial)=i;
                         end
                     end
                 end
+
             end
+
+
             while dat.resp1(trial)==1 || keyCode(cfg.spaceKey)==1
                 Screen('DrawDots',mainwindow,fixposition,5,cfg.fixcolor);
                 ON=Screen('Flip',mainwindow, time_stim);
+                Screen('AddFrameToMovie', mainwindow);
                 break;
             end
+
+
         end
+
         HideCursor;
+
         %close texture
         Screen('Close',stim_tex_rand);
-        Screen('Close',stim_tex);
+
+
+
+
     end
+    Screen('FinalizeMovie', recorder);
     sca
+
     if cfg.eeg_mode==1
         fclose(SerialPortObj);
         delete(SerialPortObj);
         clear SerialPortObj;
     end
-    save(['RSVP_eeg_s',num2str(dat.subjcode)],'cfg','dat');
+   
+    %save(['RSVP_eeg_s',num2str(dat.subjcode)],'cfg','dat');
+
 catch
+  
     sca
     lasterr
+
 end
+
 toc
+
+

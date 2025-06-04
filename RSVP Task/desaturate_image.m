@@ -1,5 +1,5 @@
 
-function image = desaturate_image1(img)
+function image = desaturate_image(img)
 
 mask=img;
 mask=rgb2hsv(mask);

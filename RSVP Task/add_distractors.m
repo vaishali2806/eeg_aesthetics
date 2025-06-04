@@ -17,8 +17,8 @@ dist_block = zeros(1, n);
 dist_block(indexes(1:numberOfOnes)) = 1;
 
 % create vector having n distractor images repated 6 times 
-dist_ind = []
-     for nn=1:24
+dist_ind = [];
+for nn=1:24
     dist_ind=[dist_ind;randperm(5)'];
 end
 
@@ -28,11 +28,11 @@ dat.new_asp = {};
 dat.new_ort = {};
 
 
-addpath('D:\Dropbox\Internship\Stimilu task\data-ort.mat');
+addpath('D:\EEG_aesthetics_SN_VG\Thesis_VG\stimulus\art_all_renamed');
 
 for ii = 1 : length(dist_block); 
     
-    if ii < length(dist_block)
+    if ii < length(dist_block);
          data = dat.stim(1,(ii -1)* 50 + 1 : (ii)* 50);
          aspect_ratio = dat.aspect_ratio(1,(ii -1)* 50 + 1 : (ii)* 50);
          ort = dat.ort(1,(ii -1)* 50 + 1 : (ii)* 50);
@@ -43,7 +43,7 @@ for ii = 1 : length(dist_block);
     end 
     
     
-    if dist_block(ii) == 1
+    if dist_block(ii) == 1;
         dist_img_blk = dist_img_blk + 1;
         A = data;
         b = ['dist_' num2str(dist_ind(dist_img_blk)) '.jpg'];
@@ -60,12 +60,12 @@ for ii = 1 : length(dist_block);
         end 
     
         A_ort = ort;
-        b_ort = ort_n;%['dist_' num2str(dist_ind(dist_img_blk)) '.jpg'];
+        b_ort = ort_n; %['dist_' num2str(dist_ind(dist_img_blk)) '.jpg'];
         data_ort = [A_ort(1,1:k) b_ort A_ort(1,k+1:end)];
         
         
         A_asp = aspect_ratio;
-        b_asp = aspect_rat;%['dist_' num2str(dist_ind(dist_img_blk)) '.jpg'];
+        b_asp = aspect_rat; %['dist_' num2str(dist_ind(dist_img_blk)) '.jpg'];
         data_asp = [A_asp(1,1:k) b_asp A_asp(1,k+1:end)];
         
         

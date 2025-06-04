@@ -3,7 +3,7 @@ function data = generate_mask_indices(dat, unique_ent, checkfaster)
 
 length_vec = length(dat.new_stim)
 % Set the length of the vector and number of unique entries
-vector_length = length_vec;
+vector_length = 12108;
 unique_entries = unique_ent;
 
 % Generate a vector with equal entries for each number from 1 to 20
