@@ -78,7 +78,7 @@ Clone the repository:
 ```bash
 git clone https://github.com/vaishali2806/eeg_aesthetics.git
 cd eeg_aesthetics
-
+```
 <details>
 <summary><strong>🚀 Usage</strong></summary>
 
