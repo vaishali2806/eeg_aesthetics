@@ -10,8 +10,6 @@ This repository contains code for the presentation and analysis of EEG data coll
 - [Data Storage](#data-storage)  
 - [Installation](#installation)  
 - [Usage](#usage)  
-- [Contributing](#contributing)  
-- [License](#license)  
 
 ## Overview
 
